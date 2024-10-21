@@ -1,7 +1,7 @@
 {
   "name": "seacloud-api-client",
   "description": "A fully typed client library for the Seacloud API",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
