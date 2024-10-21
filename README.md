@@ -1,6 +1,6 @@
 # Seacloud API Client
 
-An unoffical, fully typed client library for the Seacloud API.
+An unoffical, fully typed TS/JS client library for the Seacloud API.
 
 ## Installation
 
