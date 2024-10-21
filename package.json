@@ -1,11 +1,13 @@
 {
   "name": "seacloud-api-client",
+  "description": "A fully typed client library for the Seacloud API",
   "version": "1.0.0",
-  "main": "src/index.ts",
-  "module": "src/index.ts",
-  "types": "src/index.ts",
+  "main": "dist/index.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "build": "rollup -c",
+    "prepublishOnly": "npm run build",
     "dev": "rollup -c -w",
     "type-check": "tsc --noEmit",
     "test": "jest --watch"
@@ -26,7 +28,7 @@
     "typescript": "^4.7.4"
   },
   "files": [
-    "src"
+    "dist"
   ],
   "dependencies": {
     "dotenv": "^16.4.5",
