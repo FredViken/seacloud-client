@@ -21,13 +21,16 @@ export type Node = {
   sensors: Sensor[];
 };
 
-export type Area = {
+export type SimpleArea = {
   id: number;
   name: string;
   lat: number;
   lng: number;
+}
+
+export type Area = SimpleArea & {
   nodes: Node[];
-};
+}
 
 export type Location = {
   id: number;
@@ -52,4 +55,29 @@ export type PositionsResponse = Position[];
 
 export type CO2Emission = Position & {
   value: number;
+}
+
+export type Sensor = {
+  id: number;
+  name: string;
+  typeId: number;
+  type: string;
+  unit: string;
+  depth: number;
+  sensorValue: SensorValue;
+}
+
+export type SensorValue = {
+  timestamp: string;
+  value: number;
+  lat: number;
+  lng: number;
+}
+
+export type AggregatedSensorValue = {
+  from: string;
+  to: string;
+  min: number;
+  max: number;
+  average: number;
 }

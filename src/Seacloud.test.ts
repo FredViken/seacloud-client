@@ -7,6 +7,8 @@ const password = process.env.password as string;
 
 let client: SeacloudClient;
 let firstLocationId: number;
+let firstAreaId: number;
+let firstSensorId: number;
 
 beforeAll(async () => {
   client = new SeacloudClient();
@@ -31,6 +33,8 @@ test('getLocationById should return a location', async () => {
   console.log('Location by ID:', location);
   expect(location).not.toBeNull();
   expect(location.id).toBe(firstLocationId);
+  firstAreaId = location.areas[0].id;
+  firstSensorId = location.areas[0].nodes[0].sensors[0].id;
 });
 
 test('getGPSPositionsForLocation should return positions or null', async () => {
@@ -84,4 +88,11 @@ test('getVesselCurrentCO2Emission should return CO2 emission or null', async () 
     console.error('Error fetching CO2 emission:', error);
     expect(error).toBeDefined();
   }
+});
+
+test('getSensorById should return a sensor', async () => {
+  console.log('First sensor ID:', firstSensorId);
+  const sensor = await client.getSensorById(firstSensorId);
+  console.log('Sensor:', sensor);
+  expect(sensor).not.toBeNull();
 });

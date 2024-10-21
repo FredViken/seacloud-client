@@ -1,5 +1,17 @@
 import { API_BASE_URL } from './constants';
-import { Location, LocationsResponse, Area, AreasResponse, Position, PositionsResponse, CO2Emission } from './types';
+import {
+  Location,
+  LocationsResponse,
+  Area,
+  AreasResponse,
+  Position,
+  PositionsResponse,
+  CO2Emission,
+  Sensor,
+  SensorValue,
+  AggregatedSensorValue,
+  SimpleArea,
+} from './types';
 
 class SeacloudClient {
   public idToken: string | null = null;
@@ -10,7 +22,11 @@ class SeacloudClient {
     this.baseURL = baseURL;
   }
 
-  static async createAuthenticatedClient(username: string, password: string, baseURL: string = API_BASE_URL): Promise<SeacloudClient> {
+  static async createAuthenticatedClient(
+    username: string,
+    password: string,
+    baseURL: string = API_BASE_URL,
+  ): Promise<SeacloudClient> {
     const client = new SeacloudClient(baseURL);
     await client.authenticate(username, password);
     return client;
@@ -47,10 +63,13 @@ class SeacloudClient {
     this.refreshToken = response.refreshToken;
   }
 
-  private async request(endpoint: string, options: RequestInit & { params?: Record<string, string> } = {}): Promise<any> {
+  private async request(
+    endpoint: string,
+    options: RequestInit & { params?: Record<string, string> } = {},
+  ): Promise<any> {
     try {
       let url = `${this.baseURL}${endpoint}`;
-      
+
       // Add query parameters if they exist
       if (options.params) {
         const queryParams = new URLSearchParams(options.params).toString();
@@ -70,7 +89,9 @@ class SeacloudClient {
       const response = await fetch(url, { ...fetchOptions, headers });
 
       if (!response.ok) {
-        throw new Error(`API error: ${response.status} - ${response.statusText}`);
+        throw new Error(
+          `API error: ${response.status} - ${response.statusText}`,
+        );
       }
 
       return response.json();
@@ -93,10 +114,13 @@ class SeacloudClient {
    * @param {boolean} includeSensorData - Whether to include sensor data
    * @returns {Promise<Location>}
    */
-  async getLocationById(locationId: number, includeSensorData: boolean = false): Promise<Location> {
-    return this.request(`/Locations/${locationId}`, { 
+  async getLocationById(
+    locationId: number,
+    includeSensorData: boolean = false,
+  ): Promise<Location> {
+    return this.request(`/Locations/${locationId}`, {
       method: 'GET',
-      params: { includeSensorData: includeSensorData.toString() }
+      params: { includeSensorData: includeSensorData.toString() },
     });
   }
 
@@ -105,7 +129,7 @@ class SeacloudClient {
    * @param {number} locationId - The id of the location
    * @returns {Promise<AreasResponse>}
    */
-  async getAreasForLocation(locationId: number): Promise<AreasResponse> {
+  async getAreasForLocation(locationId: number): Promise<SimpleArea[]> {
     return this.request(`/Locations/${locationId}/Areas`, { method: 'GET' });
   }
 
@@ -116,7 +140,9 @@ class SeacloudClient {
    * @returns {Promise<Area>}
    */
   async getAreaById(locationId: number, areaId: number): Promise<Area> {
-    return this.request(`/Locations/${locationId}/Areas/${areaId}`, { method: 'GET' });
+    return this.request(`/Locations/${locationId}/Areas/${areaId}`, {
+      method: 'GET',
+    });
   }
 
   /**
@@ -125,7 +151,9 @@ class SeacloudClient {
    * @returns {Promise<Position>}
    */
   async getLatestPositionForLocation(locationId: number): Promise<Position> {
-    return this.request(`/Locations/${locationId}/LatestPosition`, { method: 'GET' });
+    return this.request(`/Locations/${locationId}/LatestPosition`, {
+      method: 'GET',
+    });
   }
 
   /**
@@ -135,11 +163,18 @@ class SeacloudClient {
    * @param {string} [to] - Optional end date for the position data
    * @returns {Promise<PositionsResponse>}
    */
-  async getGPSPositionsForLocation(locationId: string, from?: string, to?: string): Promise<PositionsResponse> {
+  async getGPSPositionsForLocation(
+    locationId: string,
+    from?: string,
+    to?: string,
+  ): Promise<PositionsResponse> {
     const params: { [key: string]: string } = {};
     if (from) params.from = from;
     if (to) params.to = to;
-    return this.request(`/Locations/${locationId}/Positions`, { method: 'GET', params });
+    return this.request(`/Locations/${locationId}/Positions`, {
+      method: 'GET',
+      params,
+    });
   }
 
   /**
@@ -148,10 +183,77 @@ class SeacloudClient {
    * @returns {Promise<CO2Emission>}
    */
   async getVesselCurrentCO2Emission(locationId: string): Promise<CO2Emission> {
-    return this.request(`/Locations/${locationId}/VesselCurrentCo2Emission`, { method: 'GET' });
+    return this.request(`/Locations/${locationId}/VesselCurrentCo2Emission`, {
+      method: 'GET',
+    });
   }
 
-  // Add other methods for API calls here
+  /**
+   * Get a sensor by id.
+   * @param {number} sensorId - The id of the sensor
+   * @returns {Promise<Sensor>}
+   */
+  async getSensorById(sensorId: number): Promise<Sensor> {
+    return this.request(`/Sensors/${sensorId}`, { method: 'GET' });
+  }
+
+  /**
+   * Get aggregated sensor values from and to a specific date and time. Sensor values will be aggregated and you will get min/average/max value per interval as specified with timeIntervalInMinutes. This endpoint should be used when getting sensor data for a longer period of time (ie. more than 5-6 days) to prevent getting to many sensor values.
+   * The maximum limit of sensor values returned is 10000, and requests resulting in more than this, will return a BadRequest with the message 'Too many sensor values'.
+   * Aggregation and time interval must be adjusted according to the time period.
+   * @param sensorId - The id of the sensor
+   * @param from - Optional start date for the sensor data
+   * @param to - Optional end date for the sensor data
+   * @param timeInterval - The time interval in minutes for the aggregation
+   * @returns {Promise<AggregatedSensorValue[]>}
+   */
+  async getAggregatedSensorValues(
+    sensorId: number,
+    from?: string,
+    to?: string,
+    timeInterval?: string,
+  ): Promise<AggregatedSensorValue[]> {
+    const params: { [key: string]: string } = {};
+    if (from) params.from = from;
+    if (to) params.to = to;
+    if (timeInterval) params.timeIntervalInMinutes = timeInterval;
+    return this.request(`/Sensors/${sensorId}/AggregatedValues`, {
+      method: 'GET',
+      params,
+    });
+  }
+
+  /**
+   * Get all sensor values from and to a specific date and time. Use this endpoint for getting historical sensor data for a shorter period of time (ie minutes/hours back to maximum 3 days).
+   * Please use the aggregatedvalues endpoint for sensor data spanning longer periods of time.
+   * The maximum limit of sensor values returned is 10000, and requests resulting in more than this, will return a BadRequest with the message 'Too many sensor values'.
+   * @param sensorId - The id of the sensor
+   * @param from - Optional start date for the sensor data
+   * @param to - Optional end date for the sensor data
+   * @returns {Promise<SensorValue[]>}
+   */
+  async getSensorValues(
+    sensorId: number,
+    from?: string,
+    to?: string,
+  ): Promise<SensorValue[]> {
+    const params: { [key: string]: string } = {};
+    if (from) params.from = from;
+    if (to) params.to = to;
+    return this.request(`/Sensors/${sensorId}/Values`, {
+      method: 'GET',
+      params,
+    });
+  }
+
+  /**
+   * Get the latest sensor value.
+   * @param {number} sensorId - The id of the sensor
+   * @returns {Promise<SensorValue>}
+   */
+  async getLatestSensorValue(sensorId: number): Promise<SensorValue> {
+    return this.request(`/Sensors/${sensorId}/LatestValue`, { method: 'GET' });
+  }
 }
 
 export default SeacloudClient;
