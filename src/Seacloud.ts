@@ -234,8 +234,8 @@ class SeacloudClient {
    */
   async getSensorValues(
     sensorId: number,
-    from?: string,
-    to?: string,
+    from: string = new Date(new Date().setMonth(new Date().getMonth() - 1)).toISOString(),
+    to: string = new Date().toISOString(),
   ): Promise<SensorValue[]> {
     const params: { [key: string]: string } = {};
     if (from) params.from = from;

@@ -1,4 +1,4 @@
-import SeacloudClient from "./Seacloud";
+import {SeacloudClient, type Sensor} from "./index";
 
 require('dotenv').config()
 

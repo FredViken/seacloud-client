@@ -12,6 +12,12 @@ export default {
       format: 'es',
     },
   ],
-  plugins: [typescript()],
+  plugins: [
+    typescript({
+      tsconfig: './tsconfig.json',
+      declaration: true,
+      declarationDir: './dist',
+    }),
+  ],
   external: ['node-fetch'],
 };
