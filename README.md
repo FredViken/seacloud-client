@@ -1,4 +1,4 @@
-# seacloud-client
+# Seacloud API Client
 
 An unoffical, fully typed client library for the Seacloud API.
 
