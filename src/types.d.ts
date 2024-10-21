@@ -1,37 +1,55 @@
-export declare namespace SeaCloud {
-  interface User {
-    id: string;
-    name: string;
-    email: string;
-  }
+export type SensorValue = {
+  timestamp: string;
+  value: number;
+  lat: number;
+  lng: number;
+};
 
-  interface ApiResponse<T> {
-    data: T;
-    status: number;
-    message: string;
-  }
+export type Sensor = {
+  id: number;
+  name: string;
+  typeId: number;
+  type: string;
+  unit: string;
+  depth: number;
+  sensorValue: SensorValue;
+};
 
-  type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
+export type Node = {
+  id: number;
+  name: string;
+  sensors: Sensor[];
+};
 
-  type UserWithMetadata = User & {
-    lastLogin: Date;
-    preferences: Record<string, unknown>;
-  };
+export type Area = {
+  id: number;
+  name: string;
+  lat: number;
+  lng: number;
+  nodes: Node[];
+};
 
-  interface RequestOptions {
-    method: HttpMethod;
-    headers?: Record<string, string>;
-    body?: any;
-  }
+export type Location = {
+  id: number;
+  name: string;
+  lat: number;
+  lng: number;
+  aquacultureRegisterSiteNr: number | null;
+  areas: Area[];
+};
 
-  type ErrorHandler = (error: Error) => void;
+export type LocationsResponse = Location[];
 
-  interface AuthResponse {
-    idToken: string;
-    refreshToken: string;
-  }
+export type AreasResponse = Area[];
 
-  interface SeacloudClientOptions {
-    baseURL?: string;
-  }
+export type Position = {
+  timestamp: string;
+  latitude: number;
+  longitude: number;
+};
+
+export type PositionsResponse = Position[];
+
+export type CO2Emission = Position & {
+  value: number;
 }
